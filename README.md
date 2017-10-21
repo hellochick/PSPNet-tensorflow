@@ -10,6 +10,7 @@ To get result on your own images, use the following command:
 ```
 python inference.py --img-path=./input/test.png
 ```
+Inference time:  ~0.6s 
 
 ## Evaluation
 Perform in single-scaled model `without flipped evaluation and sliding-window method` mentioned in original paper, we gets `76.99% mIoU` on the cityscapes validation datase.
