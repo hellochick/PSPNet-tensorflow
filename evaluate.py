@@ -25,18 +25,22 @@ DATA_LIST_PATH = '/data/cityscapes_dataset/cityscape/list/eval_list.txt'
 num_classes = 19
 ignore_label = 255 # Don't care label
 num_steps = 500 # numbers of image in validation set
+time_list = []
+
 
 def get_arguments():
     parser = argparse.ArgumentParser(description="Reproduced PSPNet")
 
-    parser.add_argument("--measure_time", action="store_true",
+    parser.add_argument("--measure-time", action="store_true",
                         help="whether to measure inference time")
-    parser.add_argument("--is_save", action="store_true",
+    parser.add_argument("--is-save", action="store_true",
                         help="whether to save output")
     parser.add_argument("--model", type=str, default=SNAPSHOT_DIR,
                         help="Path to restore weights.")
     parser.add_argument("--save-dir", type=str, default=SAVE_DIR,
                         help="Path to save output.")
+    parser.add_argument("--flipped-eval", action="store_true",
+                        help="whether to evaluate with flipped img.")
 
     return parser.parse_args()
 
@@ -44,9 +48,24 @@ def load(saver, sess, ckpt_path):
     saver.restore(sess, ckpt_path)
     print("Restored model parameters from {}".format(ckpt_path))
 
+def calculate_time(sess, net):
+    start = time.time()
+    sess.run(net.layers['data'])
+    data_time = time.time() - start
+
+    start = time.time()
+    sess.run(net.layers['conv6'])
+    total_time = time.time() - start
+
+    inference_time = total_time - data_time
+
+    time_list.append(inference_time)
+    print('average inference time: {}'.format(np.mean(time_list)))
+
 def main():
     args = get_arguments()
-
+    print(args)
+    
     coord = tf.train.Coordinator()
 
     tf.reset_default_graph()
@@ -64,11 +83,23 @@ def main():
     # Create network.
     net = PSPNet({'data': image_batch}, num_classes=num_classes)
 
+    with tf.variable_scope('', reuse=True):
+        flipped_img = tf.image.flip_left_right(image)
+        flipped_img = tf.expand_dims(flipped_img, dim=0)
+        net2 = PSPNet({'data': flipped_img}, num_classes=num_classes)
+
+        
     # Which variables to load.
     restore_var = tf.global_variables()
 
     # Predictions.
     raw_output = net.layers['conv6']
+    
+    if args.flipped_eval:
+        flipped_output = tf.image.flip_left_right(tf.squeeze(net2.layers['conv6']))
+        flipped_output = tf.expand_dims(flipped_output, dim=0)
+        raw_output = tf.add_n([raw_output, flipped_output])
+
     raw_output_up = tf.image.resize_bilinear(raw_output, size=input_size, align_corners=True)
     raw_output_up = tf.argmax(raw_output_up, dimension=3)
     pred = tf.expand_dims(raw_output_up, dim=3)
@@ -106,6 +137,9 @@ def main():
 
     for step in range(num_steps):
         preds, _ = sess.run([pred, update_op])
+        
+        if step > 0 and args.measure_time:
+            calculate_time(sess, net)
 
         if step % 10 == 0:
             print('Finish {0}/{1}'.format(step, num_steps))
