@@ -26,6 +26,8 @@ def get_arguments():
                         help="Path to restore weights.")
     parser.add_argument("--save-dir", type=str, default=SAVE_DIR,
                         help="Path to save output.")
+    parser.add_argument("--flipped-eval", action="store_true",
+                        help="whether to evaluate with flipped img.")
 
     return parser.parse_args()
 
@@ -80,10 +82,20 @@ def main():
     img = preprocess(img)
     
     # Create network.
-    net = PSPNet({'data': img}, is_training=False, num_classes=num_classes)
+    net = PSPNet({'data': img}, num_classes=num_classes)
+    with tf.variable_scope('', reuse=True):
+        flipped_img = tf.image.flip_left_right(tf.squeeze(img))
+        flipped_img = tf.expand_dims(flipped_img, dim=0)
+        net2 = PSPNet({'data': flipped_img}, num_classes=num_classes)
+
+
+    raw_output = net.layers['conv6']
+    if args.flipped_eval:
+        flipped_output = tf.image.flip_left_right(tf.squeeze(net2.layers['conv6']))
+        flipped_output = tf.expand_dims(flipped_output, dim=0)
+        raw_output = tf.add_n([raw_output, flipped_output])
 
     # Predictions.
-    raw_output = net.layers['conv6']
     raw_output_up = tf.image.resize_bilinear(raw_output, size=input_size, align_corners=True)
     raw_output_up = tf.argmax(raw_output_up, dimension=3)
     pred = tf.expand_dims(raw_output_up, dim=3)
