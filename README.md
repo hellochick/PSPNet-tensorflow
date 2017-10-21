@@ -13,13 +13,22 @@ python inference.py --img-path=./input/test.png
 Inference time:  ~0.6s 
 
 ## Evaluation
-Perform in single-scaled model `without flipped evaluation and sliding-window method` mentioned in original paper, we gets `76.99% mIoU` on the cityscapes validation datase.
+Perform in single-scaled model on the cityscapes validation datase.
+
+| Method | Accuracy |  
+|:-------:|:----------:|
+| Without flip| **76.99%** |
+| Flip        | **77.23%** |
 
 To get evaluation result, use the following command: 
 ```
 python evaluate.py
 ```
-
+List of Args:
+```
+--flipped-eval  - Using flipped evaluation method
+--measure-time  - Calculate inference time
+```
 ## Image Result
 Input image                |  Output image
 :-------------------------:|:-------------------------:
