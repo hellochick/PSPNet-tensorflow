@@ -3,7 +3,7 @@
   This is an implementation of PSPNet in TensorFlow for semantic segmentation on the [cityscapes](https://www.cityscapes-dataset.com/) dataset. We first convert weight from [Original Code](https://github.com/hszhao/PSPNet) by using [caffe-tensorflow](https://github.com/ethereon/caffe-tensorflow) framework.
 
 ## Install
-First get restore checkpoint from [Google Drive](https://drive.google.com/drive/folders/0B9CKOTmy0DyacmNpNlhyb1lmbU0?usp=sharing) and put into `model` directory.
+1. Get restore checkpoint from [Google Drive](https://drive.google.com/drive/folders/0B9CKOTmy0DyacmNpNlhyb1lmbU0?usp=sharing) and put into `model` directory.
 
 ## Inference
 To get result on your own images, use the following command:
@@ -20,7 +20,12 @@ Perform in single-scaled model on the cityscapes validation datase.
 | Without flip| **76.99%** |
 | Flip        | **77.23%** |
 
-To get evaluation result, use the following command: 
+To get evaluation result, you need to download Cityscape dataset from [Official website](https://www.cityscapes-dataset.com/) first. Then change `DATA_DIRECTORY` to your dataset path in `evaluate.py`:
+```
+DATA_DIRECTORY = /Path/to/dataset
+```
+
+Then run the following command: 
 ```
 python evaluate.py
 ```
