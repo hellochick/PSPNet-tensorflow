@@ -19,7 +19,7 @@ SAVE_DIR = './output/'
 SNAPSHOT_DIR = './model/'
 
 DATA_DIRECTORY = '/data/cityscapes_dataset/cityscape'
-DATA_LIST_PATH = '/data/cityscapes_dataset/cityscape/list/eval_list.txt'
+DATA_LIST_PATH = './list/eval_list.txt'
 
 num_classes = 19
 ignore_label = 255 # Don't care label
@@ -70,7 +70,7 @@ def main():
         reader = ImageReader(
             DATA_DIRECTORY,
             DATA_LIST_PATH,
-            input_size, 
+            input_size,
             ignore_label,
             IMG_MEAN,
             coord)
@@ -85,13 +85,13 @@ def main():
         flipped_img = tf.expand_dims(flipped_img, dim=0)
         net2 = PSPNet({'data': flipped_img}, num_classes=num_classes)
 
-        
+
     # Which variables to load.
     restore_var = tf.global_variables()
 
     # Predictions.
     raw_output = net.layers['conv6']
-    
+
     if args.flipped_eval:
         flipped_output = tf.image.flip_left_right(tf.squeeze(net2.layers['conv6']))
         flipped_output = tf.expand_dims(flipped_output, dim=0)
@@ -134,7 +134,7 @@ def main():
 
     for step in range(num_steps):
         preds, _ = sess.run([pred, update_op])
-        
+
         if step > 0 and args.measure_time:
             calculate_time(sess, net)
 
