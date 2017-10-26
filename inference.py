@@ -70,17 +70,17 @@ def preprocess(img):
     # Extract mean.
     img -= IMG_MEAN
 
-    img.set_shape([1024, 2048, 3]) 
+    img.set_shape([1024, 2048, 3])
     img = tf.expand_dims(img, dim=0)
 
     return img
 
 def main():
     args = get_arguments()
-    
+
     img, filename = load_img(args.img_path)
     img = preprocess(img)
-    
+
     # Create network.
     net = PSPNet({'data': img}, num_classes=num_classes)
     with tf.variable_scope('', reuse=True):
