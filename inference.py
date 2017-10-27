@@ -16,7 +16,7 @@ input_size = [1024, 2048]
 num_classes = 19
 
 SAVE_DIR = './output/'
-SNAPSHOT_DIR = './mode_train/'
+SNAPSHOT_DIR = './model/'
 
 def get_arguments():
     parser = argparse.ArgumentParser(description="Reproduced PSPNet")
