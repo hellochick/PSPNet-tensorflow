@@ -3,7 +3,8 @@
   This is an implementation of PSPNet in TensorFlow for semantic segmentation on the [cityscapes](https://www.cityscapes-dataset.com/) dataset. We first convert weight from [Original Code](https://github.com/hszhao/PSPNet) by using [caffe-tensorflow](https://github.com/ethereon/caffe-tensorflow) framework.
 
 ## Update:
-### 2017/10/27: Change bn layer from `tf.nn.batch_normalization` into `tf.layers.batch_normalization` in order to support training phase. Also update initial model in Google Drive.
+#### 2017/10/27: 
+Change bn layer from `tf.nn.batch_normalization` into `tf.layers.batch_normalization` in order to support training phase. Also update initial model in Google Drive.
 
 ## Install
 Get restore checkpoint from [Google Drive](https://drive.google.com/open?id=0B9CKOTmy0DyaV09LajlTa0Z2WFU) and put into `model` directory.
