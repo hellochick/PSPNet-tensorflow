@@ -1,10 +1,9 @@
 import numpy as np
 import tensorflow as tf
-slim = tf.contrib.slim
 
 DEFAULT_PADDING = 'VALID'
 DEFAULT_DATAFORMAT = 'NHWC'
-layer_name = []
+
 def layer(op):
     '''Decorator for composable network layers.'''
 
@@ -22,7 +21,6 @@ def layer(op):
         layer_output = op(self, layer_input, *args, **kwargs)
         # Add to layer LUT.
         self.layers[name] = layer_output
-        layer_name.append(name)
         # This output is now the input for the next layer.
         self.feed(layer_output)
         # Return self for chained calls.
@@ -46,7 +44,7 @@ class Network(object):
         self.use_dropout = tf.placeholder_with_default(tf.constant(1.0),
                                                        shape=[],
                                                        name='use_dropout')
-
+        self.is_training = is_training
         self.setup(is_training, num_classes)
 
     def setup(self, is_training):
@@ -59,6 +57,8 @@ class Network(object):
         session: The current TensorFlow session
         ignore_missing: If true, serialized weights for missing layers are ignored.
         '''
+        data_dict = np.load(data_path).item()
+
         for op_name in data_dict:
             with tf.variable_scope(op_name, reuse=True):
                 for param_name, data in data_dict[op_name].iteritems():
@@ -108,7 +108,7 @@ class Network(object):
     def zero_padding(self, input, paddings, name):
         pad_mat = np.array([[0,0], [paddings, paddings], [paddings, paddings], [0, 0]])
         return tf.pad(input, paddings=pad_mat, name=name)
-    
+
     @layer
     def conv(self,
              input,
@@ -131,7 +131,7 @@ class Network(object):
         with tf.variable_scope(name) as scope:
             kernel = self.make_var('weights', shape=[k_h, k_w, c_i, c_o])
             output = convolve(input, kernel)
-            
+
             if biased:
                 biases = self.make_var('biases', [c_o])
                 output = tf.nn.bias_add(output, biases)
@@ -238,9 +238,10 @@ class Network(object):
             if input_shape[1] == 1 and input_shape[2] == 1:
                 input = tf.squeeze(input, squeeze_dims=[1, 2])
             else:        return tf.nn.softmax(input, name)
-    
+
     @layer
     def batch_normalization(self, input, name, scale_offset=True, relu=False):
+        """
         # NOTE: Currently, only inference is supported
         with tf.variable_scope(name) as scope:
             shape = [input.get_shape()[-1]]
@@ -262,7 +263,21 @@ class Network(object):
             if relu:
                 output = tf.nn.relu(output)
             return output
-        
+        """
+
+        with tf.variable_scope(name) as scope:
+            output = tf.layers.batch_normalization(
+                input,
+                momentum=0.95,
+                epsilon=1e-5,
+                training=self.is_training,
+                name=name
+            )
+
+            if relu:
+                output = tf.nn.relu(output)
+
+            return output
 
     @layer
     def dropout(self, input, keep_prob, name):

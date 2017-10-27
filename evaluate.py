@@ -71,6 +71,8 @@ def main():
             DATA_DIRECTORY,
             DATA_LIST_PATH,
             input_size,
+            None,
+            None,
             ignore_label,
             IMG_MEAN,
             coord)
@@ -78,12 +80,12 @@ def main():
     image_batch, label_batch = tf.expand_dims(image, dim=0), tf.expand_dims(label, dim=0) # Add one batch dimension.
 
     # Create network.
-    net = PSPNet({'data': image_batch}, num_classes=num_classes)
+    net = PSPNet({'data': image_batch}, is_training=False, num_classes=num_classes)
 
     with tf.variable_scope('', reuse=True):
         flipped_img = tf.image.flip_left_right(image)
         flipped_img = tf.expand_dims(flipped_img, dim=0)
-        net2 = PSPNet({'data': flipped_img}, num_classes=num_classes)
+        net2 = PSPNet({'data': flipped_img}, is_training=False, num_classes=num_classes)
 
 
     # Which variables to load.
@@ -134,12 +136,13 @@ def main():
 
     for step in range(num_steps):
         preds, _ = sess.run([pred, update_op])
-
+        
         if step > 0 and args.measure_time:
             calculate_time(sess, net)
 
         if step % 10 == 0:
             print('Finish {0}/{1}'.format(step, num_steps))
+            print('step {0} mIoU: {1}'.format(step, sess.run(mIoU)))
 
     print('step {0} mIoU: {1}'.format(step, sess.run(mIoU)))
 

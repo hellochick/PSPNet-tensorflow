@@ -16,7 +16,7 @@ input_size = [1024, 2048]
 num_classes = 19
 
 SAVE_DIR = './output/'
-SNAPSHOT_DIR = './model/'
+SNAPSHOT_DIR = './mode_train/'
 
 def get_arguments():
     parser = argparse.ArgumentParser(description="Reproduced PSPNet")
@@ -82,11 +82,11 @@ def main():
     img = preprocess(img)
 
     # Create network.
-    net = PSPNet({'data': img}, num_classes=num_classes)
+    net = PSPNet({'data': img}, is_training=False, num_classes=num_classes)
     with tf.variable_scope('', reuse=True):
         flipped_img = tf.image.flip_left_right(tf.squeeze(img))
         flipped_img = tf.expand_dims(flipped_img, dim=0)
-        net2 = PSPNet({'data': flipped_img}, num_classes=num_classes)
+        net2 = PSPNet({'data': flipped_img}, is_training=False, num_classes=num_classes)
 
 
     raw_output = net.layers['conv6']
@@ -107,6 +107,7 @@ def main():
     init = tf.global_variables_initializer()
 
     sess.run(init)
+    saver = tf.train.Saver(var_list=tf.global_variables(), max_to_keep=10)
 
     restore_var = tf.global_variables()
 
