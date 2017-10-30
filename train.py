@@ -12,7 +12,7 @@ import time
 import tensorflow as tf
 import numpy as np
 
-from model_od16 import PSPNet
+from model import PSPNet
 from tools import decode_labels, prepare_label
 from image_reader import ImageReader
 
