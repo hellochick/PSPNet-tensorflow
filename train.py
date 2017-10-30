@@ -12,7 +12,7 @@ import time
 import tensorflow as tf
 import numpy as np
 
-from model import PSPNet
+from model_od16 import PSPNet
 from tools import decode_labels, prepare_label
 from image_reader import ImageReader
 
@@ -78,6 +78,8 @@ def get_arguments():
                         help="Where to save snapshots of the model.")
     parser.add_argument("--weight-decay", type=float, default=WEIGHT_DECAY,
                         help="Regularisation parameter for L2-loss.")
+    parser.add_argument("--update-mean-var", action="store_true",
+                        help="whether to get update_op from tf.Graphic_Keys")
     return parser.parse_args()
 
 def save(saver, sess, logdir, step):
@@ -116,7 +118,7 @@ def main():
             coord)
         image_batch, label_batch = reader.dequeue(args.batch_size)
     
-    net = PSPNet({'data': image_batch}, is_training=args.is_training, num_classes=args.num_classes)
+    net = PSPNet({'data': image_batch}, is_training=True, num_classes=args.num_classes)
     
     raw_output = net.layers['conv6']
 
@@ -150,7 +152,11 @@ def main():
     learning_rate = tf.scalar_mul(base_lr, tf.pow((1 - step_ph / args.num_steps), args.power))
     
     # Gets moving_mean and moving_variance update operations from tf.GraphKeys.UPDATE_OPS
-    update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+    if args.update_mean_var == False:
+        update_ops = None
+    else:
+        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+
     with tf.control_dependencies(update_ops):
         opt_conv = tf.train.MomentumOptimizer(learning_rate, args.momentum)
         opt_fc_w = tf.train.MomentumOptimizer(learning_rate * 10.0, args.momentum)
@@ -166,7 +172,7 @@ def main():
         train_op_fc_b = opt_fc_b.apply_gradients(zip(grads_fc_b, fc_b_trainable))
 
         train_op = tf.group(train_op_conv, train_op_fc_w, train_op_fc_b)
-    
+        
     # Set up tf session and initialize variables. 
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
