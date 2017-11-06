@@ -4,7 +4,7 @@
 
 ## Update:
 #### 2017/11/06:
-Support different input size by padding input image to (720, 720) if original size is smaller than it, and get result by cropping image in the end.
+`Support different input size` by padding input image to (720, 720) if original size is smaller than it, and get result by cropping image in the end.
 #### 2017/10/27: 
 Change bn layer from `tf.nn.batch_normalization` into `tf.layers.batch_normalization` in order to support training phase. Also update initial model in Google Drive.
 
