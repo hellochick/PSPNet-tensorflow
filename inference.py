@@ -17,6 +17,7 @@ num_classes = 19
 
 SAVE_DIR = './output/'
 SNAPSHOT_DIR = './model/'
+crop_size = [720, 720]
 
 def get_arguments():
     parser = argparse.ArgumentParser(description="Reproduced PSPNet")
@@ -63,23 +64,26 @@ def load_img(img_path):
 
     return img, filename
 
-def preprocess(img):
+def preprocess(img, h, w):
     # Convert RGB to BGR
     img_r, img_g, img_b = tf.split(axis=2, num_or_size_splits=3, value=img)
     img = tf.cast(tf.concat(axis=2, values=[img_b, img_g, img_r]), dtype=tf.float32)
     # Extract mean.
     img -= IMG_MEAN
 
-    img.set_shape([1024, 2048, 3])
-    img = tf.expand_dims(img, dim=0)
+    pad_img = tf.image.pad_to_bounding_box(img, 0, 0, h, w)
+    pad_img = tf.expand_dims(pad_img, dim=0)
 
-    return img
+    return pad_img
 
 def main():
     args = get_arguments()
 
     img, filename = load_img(args.img_path)
-    img = preprocess(img)
+    img_shape = tf.shape(img)
+    h, w = (tf.maximum(crop_size[0], img_shape[0]), tf.maximum(crop_size[1], img_shape[1]))
+
+    img = preprocess(img, h, w)
 
     # Create network.
     net = PSPNet({'data': img}, is_training=False, num_classes=num_classes)
@@ -96,10 +100,11 @@ def main():
         raw_output = tf.add_n([raw_output, flipped_output])
 
     # Predictions.
-    raw_output_up = tf.image.resize_bilinear(raw_output, size=input_size, align_corners=True)
+    raw_output_up = tf.image.resize_bilinear(raw_output, size=[h, w], align_corners=True)
+    raw_output_up = tf.image.crop_to_bounding_box(raw_output_up, 0, 0, img_shape[0], img_shape[1])
     raw_output_up = tf.argmax(raw_output_up, dimension=3)
     pred = tf.expand_dims(raw_output_up, dim=3)
-
+    
     # Init tf Session
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
@@ -107,6 +112,7 @@ def main():
     init = tf.global_variables_initializer()
 
     sess.run(init)
+    
     saver = tf.train.Saver(var_list=tf.global_variables(), max_to_keep=10)
 
     restore_var = tf.global_variables()
@@ -118,14 +124,14 @@ def main():
         load(loader, sess, ckpt.model_checkpoint_path)
     else:
         print('No checkpoint file found.')
-
+    
     preds = sess.run(pred)
-
+    
     msk = decode_labels(preds, num_classes=num_classes)
     im = Image.fromarray(msk[0])
     if not os.path.exists(args.save_dir):
         os.makedirs(args.save_dir)
     im.save(args.save_dir + filename)
-
+    
 if __name__ == '__main__':
     main()

@@ -433,7 +433,8 @@ class PSPNet(Network):
              .add(name='conv5_3')
              .relu(name='conv5_3/relu'))
 
-        shape = self.layers['conv5_3/relu'].get_shape().as_list()[1:3]
+        conv5_3 = self.layers['conv5_3/relu']
+        shape = tf.shape(conv5_3)[1:3]
 
         (self.feed('conv5_3/relu')
              .avg_pool(90, 90, 90, 90, name='conv5_3_pool1')
