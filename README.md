@@ -43,5 +43,5 @@ List of Args:
 ## Image Result
 Input image                |  Output image
 :-------------------------:|:-------------------------:
-![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/input/test.png)  |  ![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/output/test.png)
-![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/input/test2.png)  |  ![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/output/test2.png)
+![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/input/test_1024x2048.png)  |  ![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/output/test_1024x2048.png)
+![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/input/test_720x720.png)  |  ![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/output/test_720x720.png)
