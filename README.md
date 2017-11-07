@@ -3,6 +3,8 @@
   This is an implementation of PSPNet in TensorFlow for semantic segmentation on the [cityscapes](https://www.cityscapes-dataset.com/) dataset. We first convert weight from [Original Code](https://github.com/hszhao/PSPNet) by using [caffe-tensorflow](https://github.com/ethereon/caffe-tensorflow) framework.
 
 ## Update:
+#### 2017/11/06:
+`Support different input size` by padding input image to (720, 720) if original size is smaller than it, and get result by cropping image in the end.
 #### 2017/10/27: 
 Change bn layer from `tf.nn.batch_normalization` into `tf.layers.batch_normalization` in order to support training phase. Also update initial model in Google Drive.
 
@@ -41,5 +43,5 @@ List of Args:
 ## Image Result
 Input image                |  Output image
 :-------------------------:|:-------------------------:
-![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/input/test.png)  |  ![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/output/test.png)
-![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/input/test2.png)  |  ![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/output/test2.png)
+![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/input/test_1024x2048.png)  |  ![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/output/test_1024x2048.png)
+![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/input/test_720x720.png)  |  ![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/output/test_720x720.png)
