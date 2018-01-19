@@ -12,13 +12,13 @@ import time
 import tensorflow as tf
 import numpy as np
 
-from model import PSPNet
-from tools import decode_labels, prepare_label
+from model import PSPNet101
+from tools import prepare_label
 from image_reader import ImageReader
 
 IMG_MEAN = np.array((103.939, 116.779, 123.68), dtype=np.float32)
 
-BATCH_SIZE = 4
+BATCH_SIZE = 2
 DATA_DIRECTORY = '/SSD_data/cityscapes_dataset/cityscape'
 DATA_LIST_PATH = './list/train_list.txt'
 IGNORE_LABEL = 255
@@ -120,7 +120,7 @@ def main():
             coord)
         image_batch, label_batch = reader.dequeue(args.batch_size)
     
-    net = PSPNet({'data': image_batch}, is_training=True, num_classes=args.num_classes)
+    net = PSPNet101({'data': image_batch}, is_training=True, num_classes=args.num_classes)
     
     raw_output = net.layers['conv6']
 

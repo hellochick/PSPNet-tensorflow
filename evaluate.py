@@ -8,8 +8,7 @@ from PIL import Image
 import tensorflow as tf
 import numpy as np
 
-from model import PSPNet
-from tools import decode_labels
+from model import PSPNet101
 from image_reader import ImageReader
 
 IMG_MEAN = np.array((103.939, 116.779, 123.68), dtype=np.float32)
@@ -80,13 +79,12 @@ def main():
     image_batch, label_batch = tf.expand_dims(image, dim=0), tf.expand_dims(label, dim=0) # Add one batch dimension.
 
     # Create network.
-    net = PSPNet({'data': image_batch}, is_training=False, num_classes=num_classes)
+    net = PSPNet101({'data': image_batch}, is_training=False, num_classes=num_classes)
 
     with tf.variable_scope('', reuse=True):
         flipped_img = tf.image.flip_left_right(image)
         flipped_img = tf.expand_dims(flipped_img, dim=0)
-        net2 = PSPNet({'data': flipped_img}, is_training=False, num_classes=num_classes)
-
+        net2 = PSPNet101({'data': flipped_img}, is_training=False, num_classes=num_classes)
 
     # Which variables to load.
     restore_var = tf.global_variables()
@@ -142,9 +140,8 @@ def main():
 
         if step % 10 == 0:
             print('Finish {0}/{1}'.format(step, num_steps))
-            print('step {0} mIoU: {1}'.format(step, sess.run(mIoU)))
 
-    print('step {0} mIoU: {1}'.format(step, sess.run(mIoU)))
+    print('mIoU: {1}'.format(step, sess.run(mIoU)))
 
     coord.request_stop()
     coord.join(threads)

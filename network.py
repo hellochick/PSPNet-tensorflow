@@ -4,6 +4,11 @@ import tensorflow as tf
 DEFAULT_PADDING = 'VALID'
 DEFAULT_DATAFORMAT = 'NHWC'
 
+BN_param_map = {'scale':    'gamma',
+                'offset':   'beta',
+                'variance': 'moving_variance',
+                'mean':     'moving_mean'}
+
 def layer(op):
     '''Decorator for composable network layers.'''
 
@@ -57,12 +62,16 @@ class Network(object):
         session: The current TensorFlow session
         ignore_missing: If true, serialized weights for missing layers are ignored.
         '''
-        data_dict = np.load(data_path).item()
+        data_dict = np.load(data_path, encoding='latin1').item()
 
         for op_name in data_dict:
             with tf.variable_scope(op_name, reuse=True):
-                for param_name, data in data_dict[op_name].iteritems():
+                for param_name, data in data_dict[op_name].items():
                     try:
+                        if 'bn' in op_name:
+                            param_name = BN_param_map[param_name]
+                            data = np.squeeze(data)
+
                         var = tf.get_variable(param_name)
                         session.run(var.assign(data))
                     except ValueError:
@@ -241,43 +250,18 @@ class Network(object):
 
     @layer
     def batch_normalization(self, input, name, scale_offset=True, relu=False):
-        """
-        # NOTE: Currently, only inference is supported
-        with tf.variable_scope(name) as scope:
-            shape = [input.get_shape()[-1]]
-            if scale_offset:
-                scale = self.make_var('scale', shape=shape)
-                offset = self.make_var('offset', shape=shape)
-            else:
-                scale, offset = (None, None)
-            output = tf.nn.batch_normalization(
-                input,
-                mean=self.make_var('mean', shape=shape),
-                variance=self.make_var('variance', shape=shape),
-                offset=offset,
-                scale=scale,
-                # TODO: This is the default Caffe batch norm eps
-                # Get the actual eps from parameters
-                variance_epsilon=1e-5,
-                name=name)
-            if relu:
-                output = tf.nn.relu(output)
-            return output
-        """
+        output = tf.layers.batch_normalization(
+            input,
+            momentum=0.95,
+            epsilon=1e-5,
+            training=self.is_training,
+            name=name
+        )
 
-        with tf.variable_scope(name) as scope:
-            output = tf.layers.batch_normalization(
-                input,
-                momentum=0.95,
-                epsilon=1e-5,
-                training=self.is_training,
-                name=name
-            )
+        if relu:
+            output = tf.nn.relu(output)
 
-            if relu:
-                output = tf.nn.relu(output)
-
-            return output
+        return output
 
     @layer
     def dropout(self, input, keep_prob, name):
