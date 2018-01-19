@@ -20,7 +20,8 @@ label_colours = [(128, 64, 128), (244, 35, 231), (69, 69, 69)
                 ,(119, 10, 32)]
                 # 18 = bicycle
 
-matfn = './color150.mat'
+matfn = './utils/color150.mat'
+
 def read_labelcolours(matfn):
     mat = sio.loadmat(matfn)
     color_table = mat['colors']
