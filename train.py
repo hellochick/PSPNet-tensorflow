@@ -20,7 +20,7 @@ IMG_MEAN = np.array((103.939, 116.779, 123.68), dtype=np.float32)
 
 BATCH_SIZE = 2
 DATA_DIRECTORY = '/SSD_data/cityscapes_dataset/cityscape'
-DATA_LIST_PATH = './list/train_list.txt'
+DATA_LIST_PATH = './list/cityscapes_train_list.txt'
 IGNORE_LABEL = 255
 INPUT_SIZE = '713,713'
 LEARNING_RATE = 1e-3
