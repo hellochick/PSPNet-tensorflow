@@ -66,7 +66,7 @@ List of Args:
 ### cityscapes
 Input image                |  Output image
 :-------------------------:|:-------------------------:
-![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/input/test_1024x2048.png)  |  ![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/output/test_1024x2048.png)
+![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/input/test1.png)  |  ![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/output/test_1024x2048.png)
 ![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/input/test_720x720.png)  |  ![](https://github.com/hellochick/PSPNet_tensorflow/blob/master/output/test_720x720.png)
 
 ### ade20k
