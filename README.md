@@ -3,6 +3,9 @@
   This is an implementation of PSPNet in TensorFlow for semantic segmentation on the [cityscapes](https://www.cityscapes-dataset.com/) dataset. We first convert weight from [Original Code](https://github.com/hszhao/PSPNet) by using [caffe-tensorflow](https://github.com/ethereon/caffe-tensorflow) framework.
 
 ## Update:
+## News (2018.11.08 updated):
+  Now you can try PSPNet on your own image online using [ModelDepot live demo](https://modeldepot.io/hellochick/pspnet)!
+  
 #### 2018/01/24:
 1. `Support evaluation code for ade20k dataset`
 
