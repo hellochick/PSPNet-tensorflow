@@ -1,4 +1,7 @@
 # PSPNet_tensorflow
+## Important 
+Code is fine for inference. However, the training code is just for reference and might be only used for fine-tuning.  If you want to train from scratch, you need to implement the Synchronize BN layer first to do large batch-size training (as described in the paper). It seems that this [repo](https://github.com/holyseven/PSPNet-TF-Reproduce) has reproduced it, you can take a look on it. 
+
 ## Introduction
   This is an implementation of PSPNet in TensorFlow for semantic segmentation on the [cityscapes](https://www.cityscapes-dataset.com/) dataset. We first convert weight from [Original Code](https://github.com/hszhao/PSPNet) by using [caffe-tensorflow](https://github.com/ethereon/caffe-tensorflow) framework.
 
